@@ -188,7 +188,7 @@ bool tud_audio_get_req_entity_cb(uint8_t rhport, tusb_control_request_t const *p
 
   if (entityID == UAC1_ENTITY_SPK_FEATURE_UNIT) {
     if (ctrlSel == AUDIO10_FU_CTRL_MUTE) {
-      uint8_t muted = mute[channelNum];
+      uint8_t muted = _mute[channelNum];
       log_d("Get Mute of channel: %u", channelNum);
       return tud_audio_buffer_and_schedule_control_xfer(rhport, p_request, &muted, 1);
     } else if (ctrlSel == AUDIO10_FU_CTRL_VOLUME) {
@@ -207,7 +207,10 @@ bool tud_audio_get_req_entity_cb(uint8_t rhport, tusb_control_request_t const *p
         log_d("Get Volume res of channel: %u", channelNum);
         int16_t vol_res = 256; // 1 dB in 1/256 dB units
         return tud_audio_buffer_and_schedule_control_xfer(rhport, p_request, &vol_res, sizeof(vol_res));
-      } else 
+      } else {
+        log_w("Get Volume request not supported, entityID = %d, ctrlSel = %d, bRequest = %d, wLength = %d", entityID, ctrlSel, p_request->bRequest, p_request->wLength);
+        return false;
+      }
     }
   }
   log_w("Get request not handled, entityID = %d, ctrlSel = %d, bRequest = %d, wLength = %d", entityID, ctrlSel, p_request->bRequest, request->wLength);
@@ -268,7 +271,7 @@ bool tud_audio_set_req_entity_cb(uint8_t rhport, tusb_control_request_t const *p
 
   if (entityID == UAC1_ENTITY_SPK_FEATURE_UNIT && p_request->bRequest == AUDIO10_CS_REQ_SET_CUR) {
     if (ctrlSel == AUDIO10_FU_CTRL_MUTE && p_request->wLength == 1) {
-      _mute[channelNum] = pBuff[0];
+      _mute[channelNum] = buf[0];
       log_d("Set Mute: %d of channel: %u", mute[channelNum], channelNum);
       // Send MUTE Event
       arduino_usb_audio_card_event_data_t p;
@@ -277,8 +280,7 @@ bool tud_audio_set_req_entity_cb(uint8_t rhport, tusb_control_request_t const *p
       arduino_usb_event_post(ARDUINO_USB_AUDIO_CARD_EVENTS, ARDUINO_USB_AUDIO_CARD_MUTE_EVENT, &p, sizeof(arduino_usb_audio_card_event_data_t), portMAX_DELAY);
       return true;
     } else if(ctrlSel == AUDIO10_FU_CTRL_VOLUME && p_request->wLength == 2) {
-      switch (p_request->bRequest) {
-      _volume[channelNum] = (int16_t)tu_unaligned_read16(pBuff);
+      _volume[channelNum] = (int16_t)tu_unaligned_read16(buf);
       log_d("Set Volume: %d dB of channel: %u", volume[channelNum] / 256, channelNum);
       // Send Volume Event
       arduino_usb_audio_card_event_data_t p;
