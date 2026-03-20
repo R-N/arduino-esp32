@@ -19,6 +19,8 @@
 #include "USBAudioCardDescriptors.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include <math.h>
+#include <inttypes.h>
 
 ESP_EVENT_DEFINE_BASE(ARDUINO_USB_AUDIO_CARD_EVENTS);
 esp_err_t arduino_usb_event_post(esp_event_base_t event_base, int32_t event_id, void *event_data, size_t event_data_size, TickType_t ticks_to_wait);
@@ -107,7 +109,7 @@ bool tud_audio_set_req_ep_cb(uint8_t rhport, tusb_control_request_t const *p_req
     arduino_usb_event_post(ARDUINO_USB_AUDIO_CARD_EVENTS, ARDUINO_USB_AUDIO_CARD_SAMPLE_RATE_EVENT, &p, sizeof(arduino_usb_audio_card_event_data_t), portMAX_DELAY);
     return true;
   }
-  log_w("Set EP request not handled, ctrlSel = %d, bRequest = %d, wLength = %d", ctrlSel, p_request->bRequest, request->wLength);
+  log_w("Set EP request not handled, ctrlSel = %d, bRequest = %d, wLength = %d", ctrlSel, p_request->bRequest, p_request->wLength);
   return false;
 #endif
 }
@@ -129,7 +131,7 @@ bool tud_audio_get_req_ep_cb(uint8_t rhport, tusb_control_request_t const *p_req
     freq[2] = (uint8_t) ((_sample_rate >> 16) & 0xFF);
     return tud_audio_buffer_and_schedule_control_xfer(rhport, p_request, freq, sizeof(freq));
   }
-  log_w("Get EP request not handled, ctrlSel = %d, bRequest = %d, wLength = %d", ctrlSel, p_request->bRequest, request->wLength);
+  log_w("Get EP request not handled, ctrlSel = %d, bRequest = %d, wLength = %d", ctrlSel, p_request->bRequest, p_request->wLength);
   return false;
 #endif
 }
@@ -161,6 +163,11 @@ bool tud_audio_get_req_entity_cb(uint8_t rhport, tusb_control_request_t const *p
     log_w("Clock get request not supported, entity = %u, selector = %u, request = %u", request->bEntityID, request->bControlSelector, request->bRequest);
     return false;
   } else if (request->bEntityID == UAC2_ENTITY_SPK_FEATURE_UNIT) {
+    uint8_t channel = request->bChannelNumber;
+    if (channel != 0 && channel > _spk_channels) {  
+      log_w("Invalid speaker channel %u for feature unit get request (spk_channels=%u)", channel, _spk_channels);  
+      return false;  
+    } 
     if (request->bControlSelector == AUDIO20_FU_CTRL_MUTE && request->bRequest == AUDIO20_CS_REQ_CUR) {
       audio20_control_cur_1_t mute1 = {.bCur = _mute[request->bChannelNumber]};
       log_d("Get channel %u mute %d", request->bChannelNumber, mute1.bCur);
@@ -213,7 +220,7 @@ bool tud_audio_get_req_entity_cb(uint8_t rhport, tusb_control_request_t const *p
       }
     }
   }
-  log_w("Get request not handled, entityID = %d, ctrlSel = %d, bRequest = %d, wLength = %d", entityID, ctrlSel, p_request->bRequest, request->wLength);
+  log_w("Get request not handled, entityID = %d, ctrlSel = %d, bRequest = %d, wLength = %d", entityID, ctrlSel, p_request->bRequest, p_request->wLength);
   return false;
 #endif
 }
@@ -272,7 +279,7 @@ bool tud_audio_set_req_entity_cb(uint8_t rhport, tusb_control_request_t const *p
   if (entityID == UAC1_ENTITY_SPK_FEATURE_UNIT && p_request->bRequest == AUDIO10_CS_REQ_SET_CUR) {
     if (ctrlSel == AUDIO10_FU_CTRL_MUTE && p_request->wLength == 1) {
       _mute[channelNum] = buf[0];
-      log_d("Set Mute: %d of channel: %u", mute[channelNum], channelNum);
+      log_d("Set Mute: %d of channel: %u", _mute[channelNum], channelNum);
       // Send MUTE Event
       arduino_usb_audio_card_event_data_t p;
       p.mute.channel = (UAC_Channel)channelNum;
@@ -281,7 +288,7 @@ bool tud_audio_set_req_entity_cb(uint8_t rhport, tusb_control_request_t const *p
       return true;
     } else if(ctrlSel == AUDIO10_FU_CTRL_VOLUME && p_request->wLength == 2) {
       _volume[channelNum] = (int16_t)tu_unaligned_read16(buf);
-      log_d("Set Volume: %d dB of channel: %u", volume[channelNum] / 256, channelNum);
+      log_d("Set Volume: %d dB of channel: %u", _volume[channelNum] / 256, channelNum);
       // Send Volume Event
       arduino_usb_audio_card_event_data_t p;
       p.volume.channel = (UAC_Channel)channelNum;
@@ -290,7 +297,7 @@ bool tud_audio_set_req_entity_cb(uint8_t rhport, tusb_control_request_t const *p
       return true;
     }
   }
-  log_w("Set request not handled, entityID = %d, ctrlSel = %d, bRequest = %d, wLength = %d", entityID, ctrlSel, p_request->bRequest, request->wLength);
+  log_w("Set request not handled, entityID = %d, ctrlSel = %d, bRequest = %d, wLength = %d", entityID, ctrlSel, p_request->bRequest, p_request->wLength);
   return false;
 #endif
 }
