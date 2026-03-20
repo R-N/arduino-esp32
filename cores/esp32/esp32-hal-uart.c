@@ -407,14 +407,13 @@ static bool _uartDetachBus_RTS(void *busptr) {
 
 // This function will try setting HP UART IOMUX attaching for the requested pin.
 // For LP UART attaching, it tries both, IOMUX and GPIO Matrix (ESP32-P4 only), whenever available.
-// It must called only after UART NUMBER and io_num have been validated
+// It must be called only after UART NUMBER and io_num have been validated
 static bool _uartTrySetIomuxPin(uart_port_t uart_num, int io_num, uint32_t idx) {
   // Store a pointer to the default pin, to optimize access to its fields.
   const uart_periph_sig_t *upin = &uart_periph_signal[uart_num].pins[idx];
 
   if (uart_num < SOC_UART_HP_NUM) {
     // HP UART peripheral just tries to attach IOMUX and return success or failure
-#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 5, 0)
     // In theory, if default_gpio is -1, iomux_func should also be -1, but let's be safe and test both.
     if (upin->default_gpio == -1 || upin->default_gpio != io_num) {
       return false;
@@ -425,10 +424,11 @@ static bool _uartTrySetIomuxPin(uart_port_t uart_num, int io_num, uint32_t idx) 
       log_e("IO#%d has bad IOMUX internal information. Switching to GPIO Matrix UART function.", io_num);
       return false;
     }
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 5, 0)
     if (upin->input) {
-      gpio_iomux_input(io_num, upin->iomux_func, upin->signal);
+      return ESP_OK == gpio_iomux_input(io_num, upin->iomux_func, upin->signal);
     } else {
-      gpio_iomux_output(io_num, upin->iomux_func);
+      return ESP_OK == gpio_iomux_output(io_num, upin->iomux_func);
     }
 #else
     gpio_iomux_out(io_num, upin->iomux_func, false);
@@ -536,11 +536,13 @@ static bool _uartAttachPins(uint8_t uart_num, int8_t rxPin, int8_t txPin, int8_t
   bool attachSuccess;
   if (rxPin >= 0) {
     attachSuccess = true;
-    if (_uartInternalSetPin(uart->num, UART_PIN_NO_CHANGE, rxPin, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE)) {
-      // forces a clean detaching from a previous peripheral
-      if (perimanGetPinBusType(rxPin) != ESP32_BUS_TYPE_INIT) {
-        perimanClearPinBus(rxPin);
+    // forces a clean detaching from a previous peripheral
+    if (perimanGetPinBusType(rxPin) != ESP32_BUS_TYPE_INIT) {
+      if (perimanClearPinBus(rxPin)) {
+        attachSuccess = false;
       }
+    }
+    if (attachSuccess && _uartInternalSetPin(uart->num, UART_PIN_NO_CHANGE, rxPin, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE)) {
       // connect RX Pad
       if (perimanSetPinBus(rxPin, ESP32_BUS_TYPE_UART_RX, (void *)uart, uart_num, -1)) {
         // set Peripheral Manager deInit Callback for this UART pin
@@ -556,16 +558,18 @@ static bool _uartAttachPins(uint8_t uart_num, int8_t rxPin, int8_t txPin, int8_t
     }
     if (!attachSuccess) {
       log_e("UART%u failed to attach RX pin %d", uart_num, rxPin);
-      retCode = false;      
+      retCode = false;
     }
   }
   if (txPin >= 0) {
     attachSuccess = true;
-    if ( _uartInternalSetPin(uart->num, txPin, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE)) {
-      // forces a clean detaching from a previous peripheral
-      if (perimanGetPinBusType(txPin) != ESP32_BUS_TYPE_INIT) {
-        perimanClearPinBus(txPin);
+    // forces a clean detaching from a previous peripheral
+    if (perimanGetPinBusType(txPin) != ESP32_BUS_TYPE_INIT) {
+      if (perimanClearPinBus(txPin)) {
+        attachSuccess = false;
       }
+    }
+    if (attachSuccess && _uartInternalSetPin(uart->num, txPin, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE)) {
       // connect TX Pad
       if (perimanSetPinBus(txPin, ESP32_BUS_TYPE_UART_TX, (void *)uart, uart_num, -1)) {
         // set Peripheral Manager deInit Callback for this UART pin
@@ -581,16 +585,18 @@ static bool _uartAttachPins(uint8_t uart_num, int8_t rxPin, int8_t txPin, int8_t
     }
     if (!attachSuccess) {
       log_e("UART%u failed to attach TX pin %d", uart_num, txPin);
-      retCode = false;      
+      retCode = false;
     }
   }
   if (ctsPin >= 0) {
     attachSuccess = true;
-    if (_uartInternalSetPin(uart->num, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, ctsPin)) {
-      // forces a clean detaching from a previous peripheral
-      if (perimanGetPinBusType(ctsPin) != ESP32_BUS_TYPE_INIT) {
-        perimanClearPinBus(ctsPin);
+    // forces a clean detaching from a previous peripheral
+    if (perimanGetPinBusType(ctsPin) != ESP32_BUS_TYPE_INIT) {
+      if (perimanClearPinBus(ctsPin)) {
+        attachSuccess = false;
       }
+    }
+    if (attachSuccess && _uartInternalSetPin(uart->num, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, ctsPin)) {
       // connect CTS Pad
       if (perimanSetPinBus(ctsPin, ESP32_BUS_TYPE_UART_CTS, (void *)uart, uart_num, -1)) {
         // set Peripheral Manager deInit Callback for this UART pin
@@ -606,16 +612,18 @@ static bool _uartAttachPins(uint8_t uart_num, int8_t rxPin, int8_t txPin, int8_t
     }
     if (!attachSuccess) {
       log_e("UART%u failed to attach CTS pin %d", uart_num, ctsPin);
-      retCode = false;      
+      retCode = false;
     }
   }
   if (rtsPin >= 0) {
     attachSuccess = true;
-    if (_uartInternalSetPin(uart->num, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, rtsPin, UART_PIN_NO_CHANGE)) {
-      // forces a clean detaching from a previous peripheral
-      if (perimanGetPinBusType(rtsPin) != ESP32_BUS_TYPE_INIT) {
-        perimanClearPinBus(rtsPin);
+    // forces a clean detaching from a previous peripheral
+    if (perimanGetPinBusType(rtsPin) != ESP32_BUS_TYPE_INIT) {
+      if (!perimanClearPinBus(rtsPin)) {
+        attachSuccess = false;
       }
+    }
+    if (attachSuccess && _uartInternalSetPin(uart->num, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, rtsPin, UART_PIN_NO_CHANGE)) {
       // connect RTS Pad
       if (perimanSetPinBus(rtsPin, ESP32_BUS_TYPE_UART_RTS, (void *)uart, uart_num, -1)) {
         // set Peripheral Manager deInit Callback for this UART pin
@@ -631,7 +639,7 @@ static bool _uartAttachPins(uint8_t uart_num, int8_t rxPin, int8_t txPin, int8_t
     }
     if (!attachSuccess) {
       log_e("UART%u failed to attach RTS pin %d", uart_num, rtsPin);
-      retCode = false;      
+      retCode = false;
     }
   }
   return retCode;
