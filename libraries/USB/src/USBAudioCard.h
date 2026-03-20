@@ -62,13 +62,13 @@ typedef union {
 
 typedef enum {
   UAC_SPK_NONE,
-  UAK_SPK_MONO,
+  UAC_SPK_MONO,
   UAC_SPK_STEREO
 } UAC_SPK_Channels;
 
 typedef enum {
   UAC_MIC_NONE,
-  UAK_MIC_MONO,
+  UAC_MIC_MONO,
   UAC_MIC_STEREO
 } UAC_MIC_Channels;
 
