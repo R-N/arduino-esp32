@@ -538,7 +538,7 @@ static bool _uartAttachPins(uint8_t uart_num, int8_t rxPin, int8_t txPin, int8_t
     attachSuccess = true;
     // forces a clean detaching from a previous peripheral
     if (perimanGetPinBusType(rxPin) != ESP32_BUS_TYPE_INIT) {
-      if (perimanClearPinBus(rxPin)) {
+      if (!perimanClearPinBus(rxPin)) {
         attachSuccess = false;
       }
     }
@@ -551,6 +551,7 @@ static bool _uartAttachPins(uint8_t uart_num, int8_t rxPin, int8_t txPin, int8_t
         }
         uart->_rxPin = rxPin;
       } else {
+        log_e("UART%u failed to clear previous bus assignment on RX pin %d", uart_num, rxPin);
         attachSuccess = false;
       }
     } else {
@@ -565,7 +566,7 @@ static bool _uartAttachPins(uint8_t uart_num, int8_t rxPin, int8_t txPin, int8_t
     attachSuccess = true;
     // forces a clean detaching from a previous peripheral
     if (perimanGetPinBusType(txPin) != ESP32_BUS_TYPE_INIT) {
-      if (perimanClearPinBus(txPin)) {
+      if (!perimanClearPinBus(txPin)) {
         attachSuccess = false;
       }
     }
@@ -592,7 +593,7 @@ static bool _uartAttachPins(uint8_t uart_num, int8_t rxPin, int8_t txPin, int8_t
     attachSuccess = true;
     // forces a clean detaching from a previous peripheral
     if (perimanGetPinBusType(ctsPin) != ESP32_BUS_TYPE_INIT) {
-      if (perimanClearPinBus(ctsPin)) {
+      if (!perimanClearPinBus(ctsPin)) {
         attachSuccess = false;
       }
     }
