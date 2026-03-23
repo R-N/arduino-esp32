@@ -51,7 +51,7 @@ uint16_t tusb_audio_load_descriptor(uint8_t *dst, uint8_t *itf) {
     TU_VERIFY(int_ep_num != 0);
     uint8_t descriptor[TUD_AUDIO20_HEADSET_STEREO_DESC_LEN] = {
       // Interface number, string index, EP Out & EP In & EP Interrupt address, max sample rate, speaker channels, mic channels, bytes per sample RX/TX, bits used per sample RX/TX
-      TUD_AUDIO20_HEADSET_STEREO_DESCRIPTOR(_itf_num, str_index, ep_num, ep_num | 0x80, int_ep_num | 0x80, \
+      TUD_AUDIO20_HEADSET_STEREO_DESCRIPTOR(_itf_num, str_index, ep_num, (uint8_t)(ep_num | 0x80), (uint8_t)(int_ep_num | 0x80), \
         CFG_TUD_AUDIO_MAX_SAMPLE_RATE, \
         _spk_channels,  \
         _mic_channels,  \
@@ -77,7 +77,7 @@ uint16_t tusb_audio_load_descriptor(uint8_t *dst, uint8_t *itf) {
     TU_VERIFY(ep_num != 0);
     uint8_t descriptor[TUD_AUDIO10_HEADSET_STEREO_DESC_LEN(1)] = {
       // Interface number, string index, EP Out & EP In address, max sample rate, speaker channels, mic channels, bytes per sample RX/TX, bits used per sample RX/TX, sample rate
-      TUD_AUDIO10_HEADSET_STEREO_DESCRIPTOR(_itf_num, str_index, ep_num, ep_num | 0x80, \
+      TUD_AUDIO10_HEADSET_STEREO_DESCRIPTOR(_itf_num, str_index, ep_num, (uint8_t)(ep_num | 0x80), \
         48000, \
         _spk_channels,  \
         _mic_channels,  \
@@ -93,7 +93,7 @@ uint16_t tusb_audio_load_descriptor(uint8_t *dst, uint8_t *itf) {
     TU_VERIFY(ep_num != 0);
     uint8_t descriptor[TUD_AUDIO10_HEADSET_MONO_DESC_LEN(1)] = {
       // Interface number, string index, EP Out & EP In address, max sample rate, speaker channels, mic channels, bytes per sample RX/TX, bits used per sample RX/TX, sample rate
-      TUD_AUDIO10_HEADSET_MONO_DESCRIPTOR(_itf_num, str_index, ep_num, ep_num | 0x80, \
+      TUD_AUDIO10_HEADSET_MONO_DESCRIPTOR(_itf_num, str_index, ep_num, (uint8_t)(ep_num | 0x80), \
         48000, \
         _spk_channels,  \
         _mic_channels,  \
@@ -139,7 +139,7 @@ uint16_t tusb_audio_load_descriptor(uint8_t *dst, uint8_t *itf) {
     TU_VERIFY(ep_num != 0);
     uint8_t descriptor[TUD_AUDIO10_MICROPHONE_DESC_LEN(1)] = {
       // Interface number, string index, EP In address, max sample rate, microphone channels, bytes per sample RX/TX, bits used per sample RX/TX, sample rate
-      TUD_AUDIO10_MICROPHONE_DESCRIPTOR(_itf_num, str_index, ep_num| 0x80, \
+      TUD_AUDIO10_MICROPHONE_DESCRIPTOR(_itf_num, str_index, (uint8_t)(ep_num| 0x80), \
         48000, \
         _mic_channels,  \
         _bytes_per_sample, _bits_per_sample, \
