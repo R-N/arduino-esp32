@@ -125,6 +125,9 @@ void loop() {
   checkButton();
   // Capture path: read ~1 ms of mic PCM from I2S, then send to the USB IN endpoint.
   size_t toRead = (uac.sampleRate() * uac.micChannels() * uac.bytesPerSample()) / 1000;
+  if (toRead > sizeof(inputBuffer)) {
+    toRead = sizeof(inputBuffer);
+  }
   size_t received = i2s.readBytes((char *)inputBuffer, toRead);
   if (received > 0) {
     uac.write(inputBuffer, (uint16_t)received);

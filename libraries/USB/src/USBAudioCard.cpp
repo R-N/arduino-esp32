@@ -282,10 +282,10 @@ bool tud_audio_get_req_entity_cb(uint8_t rhport, tusb_control_request_t const *p
         return tud_audio_buffer_and_schedule_control_xfer(rhport, (tusb_control_request_t const *) request, &curf, sizeof(curf));
       } else if (request->bRequest == AUDIO20_CS_REQ_RANGE) {
         audio20_control_range_4_n_t(1) rangef = {.wNumSubRanges = tu_htole16(1)};
-        rangef.subrange[0].bMin = (int32_t) _sample_rate;
-        rangef.subrange[0].bMax = (int32_t) _sample_rate;
-        rangef.subrange[0].bRes = 0;
-        log_d("Clock Range %d, %d, %d", (int) rangef.subrange[0].bMin, (int) rangef.subrange[0].bMax, (int) rangef.subrange[0].bRes);
+        rangef.subrange[0].bMin = (int32_t) tu_htole32(_sample_rate);
+        rangef.subrange[0].bMax = (int32_t) tu_htole32(_sample_rate);
+        rangef.subrange[0].bRes = (int32_t) tu_htole32(0);
+        log_d("Clock Range %" PRIu32 ", %" PRIu32 ", %d", _sample_rate, _sample_rate, 0);
         return tud_audio_buffer_and_schedule_control_xfer(rhport, (tusb_control_request_t const *) request, &rangef, sizeof(rangef));
       }
     } else if (request->bControlSelector == AUDIO20_CS_CTRL_CLK_VALID && request->bRequest == AUDIO20_CS_REQ_CUR) {
@@ -481,6 +481,11 @@ USBAudioCard::USBAudioCard(uint32_t sample_rate, UAC_Bits_Per_Sample bps, UAC_SP
 
     uint16_t descriptor_len = 0;
 #if TUD_OPT_HIGH_SPEED
+    if (_sample_rate > CFG_TUD_AUDIO_MAX_SAMPLE_RATE) {
+      log_e("Maximum %u sample rate supported!", CFG_TUD_AUDIO_MAX_SAMPLE_RATE);
+      _uac = NULL;
+      return;
+    }
     if (_spk_channels == 2 && _mic_channels > 0) {
       // Stereo Headset
       descriptor_len = TUD_AUDIO20_HEADSET_STEREO_DESC_LEN;
@@ -622,7 +627,7 @@ bool USBAudioCard::mute(UAC_Channel channel, bool muted) {
 int8_t USBAudioCard::volume(UAC_Channel channel) {
   if (_spk_channels == 0 || channel > _spk_channels) {
     log_e("Bad speaker channel %u", channel);
-    return false;
+    return INT8_MIN;
   }
   return _volume[channel] / 256;
 }

@@ -440,7 +440,7 @@
     /* Standard AC Interface Descriptor(4.3.1) */\
     TUD_AUDIO10_DESC_STD_AC(/*_itfnum*/ _itfnum, /*_nEPs*/ 0x00, /*_stridx*/ _stridx),\
     /* Class-Specific AC Interface Header Descriptor(4.3.2) */\
-    TUD_AUDIO10_DESC_CS_AC(/*_bcdADC*/ 0x0100, /*_totallen*/ (TUD_AUDIO10_DESC_INPUT_TERM_LEN+TUD_AUDIO10_DESC_FEATURE_UNIT_LEN(2)+TUD_AUDIO10_DESC_OUTPUT_TERM_LEN+TUD_AUDIO10_DESC_INPUT_TERM_LEN+TUD_AUDIO10_DESC_OUTPUT_TERM_LEN), /*_itf*/ (uint8_t)((_itfnum)+1), (uint8_t)((_itfnum)+2)),\
+    TUD_AUDIO10_DESC_CS_AC(/*_bcdADC*/ 0x0100, /*_totallen*/ (TUD_AUDIO10_DESC_INPUT_TERM_LEN+TUD_AUDIO10_DESC_FEATURE_UNIT_LEN(1)+TUD_AUDIO10_DESC_OUTPUT_TERM_LEN+TUD_AUDIO10_DESC_INPUT_TERM_LEN+TUD_AUDIO10_DESC_OUTPUT_TERM_LEN), /*_itf*/ (uint8_t)((_itfnum)+1), (uint8_t)((_itfnum)+2)),\
     /* Speaker Input Terminal Descriptor(4.3.2.1) */\
     TUD_AUDIO10_DESC_INPUT_TERM(/*_termid*/ UAC1_ENTITY_SPK_INPUT_TERMINAL, /*_termtype*/ AUDIO_TERM_TYPE_USB_STREAMING, /*_assocTerm*/ UAC1_ENTITY_MIC_OUTPUT_TERMINAL, /*_nchannels*/ _nChannels_SPK, /*_channelcfg*/ AUDIO10_CHANNEL_CONFIG_NON_PREDEFINED, /*_idxchannelnames*/ 0x00, /*_stridx*/ 0x00),\
     /* Speaker Feature Unit Descriptor(4.3.2.5) */\
