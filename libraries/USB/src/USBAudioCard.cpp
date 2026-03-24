@@ -62,12 +62,69 @@ uint16_t tusb_audio_load_descriptor(uint8_t *dst, uint8_t *itf) {
     return TUD_AUDIO20_HEADSET_STEREO_DESC_LEN;
   } else if (_spk_channels == 1 && _mic_channels > 0) {
     // Mono Headset
+    uint8_t ep_num = tinyusb_get_free_duplex_endpoint();
+    TU_VERIFY(ep_num != 0);
+    uint8_t int_ep_num = tinyusb_get_free_in_endpoint();
+    TU_VERIFY(int_ep_num != 0);
+    uint8_t descriptor[TUD_AUDIO20_HEADSET_MONO_DESC_LEN] = {
+      // Interface number, string index, EP Out & EP In & EP Interrupt address, max sample rate, speaker channels, mic channels, bytes per sample RX/TX, bits used per sample RX/TX
+      TUD_AUDIO20_HEADSET_MONO_DESCRIPTOR(_itf_num, str_index, ep_num, (uint8_t)(ep_num | 0x80), (uint8_t)(int_ep_num | 0x80), \
+        CFG_TUD_AUDIO_MAX_SAMPLE_RATE, \
+        _spk_channels,  \
+        _mic_channels,  \
+        _bytes_per_sample, _bits_per_sample)
+    };
+    *itf += 3;
+    memcpy(dst, descriptor, TUD_AUDIO20_HEADSET_MONO_DESC_LEN);
+    return TUD_AUDIO20_HEADSET_MONO_DESC_LEN;
   } else if (_spk_channels == 2 && _mic_channels == 0) {
     // Stereo Speaker
+    uint8_t ep_num = tinyusb_get_free_out_endpoint();
+    TU_VERIFY(ep_num != 0);
+    uint8_t int_ep_num = tinyusb_get_free_in_endpoint();
+    TU_VERIFY(int_ep_num != 0);
+    uint8_t descriptor[TUD_AUDIO20_SPEAKER_STEREO_DESC_LEN] = {
+      // Interface number, string index, EP Out & EP In & EP Interrupt address, max sample rate, speaker channels, mic channels, bytes per sample RX/TX, bits used per sample RX/TX
+      TUD_AUDIO20_SPEAKER_STEREO_DESCRIPTOR(_itf_num, str_index, ep_num, (uint8_t)(int_ep_num | 0x80), \
+        CFG_TUD_AUDIO_MAX_SAMPLE_RATE, \
+        _spk_channels,  \
+        _bytes_per_sample, _bits_per_sample)
+    };
+    *itf += 2;
+    memcpy(dst, descriptor, TUD_AUDIO20_SPEAKER_STEREO_DESC_LEN);
+    return TUD_AUDIO20_SPEAKER_STEREO_DESC_LEN;
   } else if (_spk_channels == 1 && _mic_channels == 0) {
     // Mono Speaker
+    uint8_t ep_num = tinyusb_get_free_out_endpoint();
+    TU_VERIFY(ep_num != 0);
+    uint8_t int_ep_num = tinyusb_get_free_in_endpoint();
+    TU_VERIFY(int_ep_num != 0);
+    uint8_t descriptor[TUD_AUDIO20_SPEAKER_MONO_DESC_LEN] = {
+      // Interface number, string index, EP Out & EP In & EP Interrupt address, max sample rate, speaker channels, mic channels, bytes per sample RX/TX, bits used per sample RX/TX
+      TUD_AUDIO20_SPEAKER_MONO_DESCRIPTOR(_itf_num, str_index, ep_num, (uint8_t)(int_ep_num | 0x80), \
+        CFG_TUD_AUDIO_MAX_SAMPLE_RATE, \
+        _spk_channels,  \
+        _bytes_per_sample, _bits_per_sample)
+    };
+    *itf += 2;
+    memcpy(dst, descriptor, TUD_AUDIO20_SPEAKER_MONO_DESC_LEN);
+    return TUD_AUDIO20_SPEAKER_MONO_DESC_LEN;
   } else if (_spk_channels == 0 && _mic_channels > 0) {
     // Microphone(s)
+    uint8_t ep_num = tinyusb_get_free_in_endpoint();
+    TU_VERIFY(ep_num != 0);
+    uint8_t int_ep_num = tinyusb_get_free_in_endpoint();
+    TU_VERIFY(int_ep_num != 0);
+    uint8_t descriptor[TUD_AUDIO20_MICROPHONE_DESC_LEN] = {
+      // Interface number, string index, EP Out & EP In & EP Interrupt address, max sample rate, speaker channels, mic channels, bytes per sample RX/TX, bits used per sample RX/TX
+      TUD_AUDIO20_MICROPHONE_DESCRIPTOR(_itf_num, str_index, (uint8_t)(ep_num | 0x80), (uint8_t)(int_ep_num | 0x80), \
+        CFG_TUD_AUDIO_MAX_SAMPLE_RATE, \
+        _mic_channels,  \
+        _bytes_per_sample, _bits_per_sample)
+    };
+    *itf += 2;
+    memcpy(dst, descriptor, TUD_AUDIO20_MICROPHONE_DESC_LEN);
+    return TUD_AUDIO20_MICROPHONE_DESC_LEN;
   }
 #else
   uint8_t str_index = tinyusb_add_string_descriptor("TinyUSB UAC1");
@@ -153,56 +210,11 @@ uint16_t tusb_audio_load_descriptor(uint8_t *dst, uint8_t *itf) {
   return 0;
 }
 
-USBAudioCard::USBAudioCard(uint32_t sample_rate, UAC_Bits_Per_Sample bps, UAC_SPK_Channels spk_channels, UAC_MIC_Channels mic_channels) {
-  if (_uac == NULL) {
-    _uac = this;
-    _sample_rate = sample_rate;
-    _bits_per_sample = (uint8_t)bps;
-    _bytes_per_sample = (_bits_per_sample <= 16)?2:4;
-    _spk_channels = (uint8_t)spk_channels;
-    _mic_channels = (uint8_t)mic_channels;
-
-    uint16_t descriptor_len = 0;
-#if TUD_OPT_HIGH_SPEED
-    if (_spk_channels == 2 && _mic_channels > 0) {
-      // Stereo Headset
-      descriptor_len = TUD_AUDIO20_HEADSET_STEREO_DESC_LEN;
-    } else if (_spk_channels == 1 && _mic_channels > 0) {
-      // Mono Headset
-    } else if (_spk_channels == 2 && _mic_channels == 0) {
-      // Stereo Speaker
-    } else if (_spk_channels == 1 && _mic_channels == 0) {
-      // Mono Speaker
-    } else if (_spk_channels == 0 && _mic_channels > 0) {
-      // Microphone(s)
-    }
-#else
-    if (_spk_channels == 2 && _mic_channels > 0) {
-      // Stereo Headset
-      descriptor_len = TUD_AUDIO10_HEADSET_STEREO_DESC_LEN(1);
-    } else if (_spk_channels == 1 && _mic_channels > 0) {
-      // Mono Headset
-      descriptor_len = TUD_AUDIO10_HEADSET_MONO_DESC_LEN(1);
-    } else if (_spk_channels == 2 && _mic_channels == 0) {
-      // Stereo Speaker
-      descriptor_len = TUD_AUDIO10_SPEAKER_STEREO_DESC_LEN(1);
-    } else if (_spk_channels == 1 && _mic_channels == 0) {
-      // Mono Speaker
-      descriptor_len = TUD_AUDIO10_SPEAKER_MONO_DESC_LEN(1);
-    } else if (_spk_channels == 0 && _mic_channels > 0) {
-      // Microphone(s)
-      descriptor_len = TUD_AUDIO10_MICROPHONE_DESC_LEN(1);
-    }
-#endif
-    tinyusb_enable_interface(USB_INTERFACE_AUDIO, descriptor_len, tusb_audio_load_descriptor);
-  }
-}
-
 TaskHandle_t _uacReceiveTaskHandle = NULL;
 void _uacReceiveTask(void *pvParameters) {
   for (;;) {
     uint16_t len = tud_audio_read(_spk_buf, CFG_TUD_AUDIO_FUNC_1_EP_OUT_SW_BUF_SZ);
-    if (_cb) {
+    if (len > 0 && _cb != NULL) {
       _cb(_spk_buf, len);
     }
     delay(2);
@@ -427,7 +439,7 @@ bool tud_audio_set_itf_close_ep_cb(uint8_t rhport, tusb_control_request_t const 
   (void) rhport;
   dump_control_request(p_request);
 #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_DEBUG
-  uint8_t const itf = tu_u16_low(tu_le16toh(p_request->wIndex));
+  uint8_t const itf = tu_u16_low(tu_le16toh(p_request->wIndex)) - _itf_num;
   uint8_t const alt = tu_u16_low(tu_le16toh(p_request->wValue));
   log_d("Close EP interface %d alt %d", itf, alt);
 #endif
@@ -437,7 +449,7 @@ bool tud_audio_set_itf_close_ep_cb(uint8_t rhport, tusb_control_request_t const 
 bool tud_audio_set_itf_cb(uint8_t rhport, tusb_control_request_t const *p_request) {
   (void) rhport;
   dump_control_request(p_request);
-  uint8_t const itf = tu_u16_low(tu_le16toh(p_request->wIndex));
+  uint8_t const itf = tu_u16_low(tu_le16toh(p_request->wIndex)) - _itf_num;
   uint8_t const alt = tu_u16_low(tu_le16toh(p_request->wValue));
   log_d("Set interface %d alt %d", itf, alt);
   // Send Interface Event
@@ -452,6 +464,67 @@ bool tud_audio_set_itf_cb(uint8_t rhport, tusb_control_request_t const *p_reques
   p.interface_enable.enable = alt != 0;
   arduino_usb_event_post(ARDUINO_USB_AUDIO_CARD_EVENTS, ARDUINO_USB_AUDIO_CARD_INTERFACE_ENABLE_EVENT, &p, sizeof(arduino_usb_audio_card_event_data_t), portMAX_DELAY);
   return true;
+}
+
+USBAudioCard::USBAudioCard(uint32_t sample_rate, UAC_Bits_Per_Sample bps, UAC_SPK_Channels spk_channels, UAC_MIC_Channels mic_channels) {
+  if (_uac == NULL) {
+    if ((uint8_t)spk_channels > 2) {
+      log_e("Maximum of 2 speaker channels supported!");
+      return;
+    }
+    _uac = this;
+    _sample_rate = sample_rate;
+    _bits_per_sample = (uint8_t)bps;
+    _bytes_per_sample = (_bits_per_sample <= 16)?2:4;
+    _spk_channels = (uint8_t)spk_channels;
+    _mic_channels = (uint8_t)mic_channels;
+
+    uint16_t descriptor_len = 0;
+#if TUD_OPT_HIGH_SPEED
+    if (_spk_channels == 2 && _mic_channels > 0) {
+      // Stereo Headset
+      descriptor_len = TUD_AUDIO20_HEADSET_STEREO_DESC_LEN;
+    } else if (_spk_channels == 1 && _mic_channels > 0) {
+      // Mono Headset
+      descriptor_len = TUD_AUDIO20_HEADSET_MONO_DESC_LEN;
+    } else if (_spk_channels == 2 && _mic_channels == 0) {
+      // Stereo Speaker
+      descriptor_len = TUD_AUDIO20_SPEAKER_STEREO_DESC_LEN;
+    } else if (_spk_channels == 1 && _mic_channels == 0) {
+      // Mono Speaker
+      descriptor_len = TUD_AUDIO20_SPEAKER_MONO_DESC_LEN;
+    } else if (_spk_channels == 0 && _mic_channels > 0) {
+      // Microphone(s)
+      descriptor_len = TUD_AUDIO20_MICROPHONE_DESC_LEN;
+    }
+#else
+    if (_sample_rate > 48000) {
+      log_e("Maximum 48000 sample rate supported!");
+      _uac = NULL;
+      return;
+    }
+    if (((_spk_channels + _mic_channels) * _bytes_per_sample) > 8) {
+      log_e("Too many channels or too high bits per sample selected! Audio might not work!");
+    }
+    if (_spk_channels == 2 && _mic_channels > 0) {
+      // Stereo Headset
+      descriptor_len = TUD_AUDIO10_HEADSET_STEREO_DESC_LEN(1);
+    } else if (_spk_channels == 1 && _mic_channels > 0) {
+      // Mono Headset
+      descriptor_len = TUD_AUDIO10_HEADSET_MONO_DESC_LEN(1);
+    } else if (_spk_channels == 2 && _mic_channels == 0) {
+      // Stereo Speaker
+      descriptor_len = TUD_AUDIO10_SPEAKER_STEREO_DESC_LEN(1);
+    } else if (_spk_channels == 1 && _mic_channels == 0) {
+      // Mono Speaker
+      descriptor_len = TUD_AUDIO10_SPEAKER_MONO_DESC_LEN(1);
+    } else if (_spk_channels == 0 && _mic_channels > 0) {
+      // Microphone(s)
+      descriptor_len = TUD_AUDIO10_MICROPHONE_DESC_LEN(1);
+    }
+#endif
+    tinyusb_enable_interface(USB_INTERFACE_AUDIO, descriptor_len, tusb_audio_load_descriptor);
+  }
 }
 
 USBAudioCard::~USBAudioCard() {
