@@ -32,22 +32,24 @@
 #include "USB.h"
 #include "USBAudioCard.h"
 
-// I2S pinout and sample format depend on the chip: S3 uses 16-bit I2S matching
-// UAC 16-bit; other targets use 32-bit slots with 24-bit effective UAC data.
-#if CONFIG_IDF_TARGET_ESP32S3
+// I2S pinout and sample format depend on the chip: S2/S3 uses 16-bit I2S matching
+// UAC 16-bit; P4 uses 32-bit slots with 24-bit effective UAC data.
+#if CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32S2
 #define I2S_BCLK 4
 #define I2S_LRCK 5
 #define I2S_DOUT 6
 #define I2S_DIN  7
 #define I2S_WIDTH I2S_DATA_BIT_WIDTH_16BIT
 #define UAC_BPS UAC_BPS_16
-#else
+#elif CONFIG_IDF_TARGET_ESP32P4
 #define I2S_BCLK 0
 #define I2S_LRCK 1
 #define I2S_DOUT 2
 #define I2S_DIN  3
 #define I2S_WIDTH I2S_DATA_BIT_WIDTH_32BIT
 #define UAC_BPS UAC_BPS_24
+#else
+#error This example is not supported on the selected hardware
 #endif
 
 // Default 48 kHz stereo in/out; UAC_BPS must match I2S_WIDTH for correct sample size.
@@ -82,6 +84,7 @@ static void usbEventCallback(void *arg, esp_event_base_t event_base, int32_t eve
 
 // BOOT button: debounced edge detect toggles USB master mute (does not affect I2S hardware).
 void checkButton() {
+#if CONFIG_IDF_TARGET_ESP32P4
   // Poll every 50ms
   const uint32_t interval_ms = 50;
   static uint32_t start_ms = 0;
@@ -97,6 +100,7 @@ void checkButton() {
     uac.mute(UAC_CHAN_MASTER, !uac.mute(UAC_CHAN_MASTER));
   }
   btn_prev = btn;
+#endif
 }
 
 // Invoked when the host sends playback PCM: apply UAC volume curve, then output on I2S.
