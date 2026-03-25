@@ -691,6 +691,35 @@ void USBAudioCard::applyVolume(void *data, uint16_t len) {
       }
     }
   }
+
+  // Apply volume to secondary channels
+  if (_volume[1] != 0 || _volume[2] != 0) {
+    int32_t vol_mul1 = _mute[1]?0:(int32_t)(powf(10.0f, _volume[1] / 256.0f / 20.0f) * 65536.0f);
+    int32_t vol_mul2 = _mute[2]?0:(int32_t)(powf(10.0f, _volume[2] / 256.0f / 20.0f) * 65536.0f);
+    if (_bits_per_sample == 16) {
+      int16_t *src = (int16_t *) data;
+      int16_t *limit = (int16_t *) data + len / 2;
+      while (src < limit) {
+        *src = (int16_t)(((int32_t)*src * vol_mul1) >> 16);
+        src++;
+        if (_spk_channels == 2) {
+          *src = (int16_t)(((int32_t)*src * vol_mul2) >> 16);
+          src++;
+        }
+      }
+    } else {
+      int32_t *src = (int32_t *) data;
+      int32_t *limit = (int32_t *) data + len / 4;
+      while (src < limit) {
+        *src = (int32_t)(((int64_t)*src * vol_mul1) >> 16);
+        src++;
+        if (_spk_channels == 2) {
+          *src = (int32_t)(((int64_t)*src * vol_mul2) >> 16);
+          src++;
+        }
+      }
+    }
+  }
 }
 
 void USBAudioCard::onData(arduino_usb_audio_card_data_handler_t callback) {

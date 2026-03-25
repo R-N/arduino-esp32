@@ -157,9 +157,9 @@ public:
    */
   bool volume(UAC_Channel channel, int8_t volume_db); // UAC2 Only
 
-  /** @brief Scales speaker PCM in @a data by the current master volume and mute (software path).
+  /** @brief Scales speaker PCM in @a data by the current volume and mute (software path).
    *
-   *  Use when the DAC has no hardware volume control: applies master channel (index 0) only.
+   *  Use when the DAC has no hardware volume control: applies all channels.
    *
    *  @param data Buffer of PCM samples; modified in place. Layout must match bitsPerSample().
    *  @param len  Size of @a data in bytes.
