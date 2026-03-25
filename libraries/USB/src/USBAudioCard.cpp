@@ -693,7 +693,7 @@ void USBAudioCard::applyVolume(void *data, uint16_t len) {
   }
 
   // Apply volume to secondary channels
-  if (_volume[1] != 0 || _volume[2] != 0) {
+  if (_volume[1] != 0 || _volume[2] != 0 || _mute[1] || _mute[2]) {
     int32_t vol_mul1 = _mute[1]?0:(int32_t)(powf(10.0f, _volume[1] / 256.0f / 20.0f) * 65536.0f);
     int32_t vol_mul2 = _mute[2]?0:(int32_t)(powf(10.0f, _volume[2] / 256.0f / 20.0f) * 65536.0f);
     if (_bits_per_sample == 16) {
