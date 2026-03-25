@@ -10,7 +10,6 @@
   by Lucas Saavedra Vaz (lucasssvaz)
 */
 
-#include <Arduino.h>
 #include "ESP_I2S.h"
 #include "Wire.h"
 

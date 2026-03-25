@@ -5,8 +5,6 @@
    author: chegewara
 */
 
-#include <Arduino.h>
-
 #ifndef CONFIG_BLUEDROID_ENABLED
 #error "NimBLE does not support periodic advertising yet. Try using Bluedroid."
 #elif !defined(CONFIG_BT_BLE_50_FEATURES_SUPPORTED)

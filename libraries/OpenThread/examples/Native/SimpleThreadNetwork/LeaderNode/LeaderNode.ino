@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include "OThread.h"
 
 OpenThread threadLeaderNode;
@@ -43,7 +42,7 @@ void loop() {
     Serial.printf("Role: %s\r\n", threadLeaderNode.otGetStringDeviceRole());
     Serial.printf("RLOC16: 0x%04x\r\n", threadLeaderNode.getRloc16());
     Serial.printf("Network Name: %s\r\n", threadLeaderNode.getNetworkName().c_str());
-    Serial.printf("Channel: %u\r\n", threadLeaderNode.getChannel());
+    Serial.printf("Channel: %d\r\n", threadLeaderNode.getChannel());
     Serial.printf("PAN ID: 0x%04x\r\n", threadLeaderNode.getPanId());
 
     // Extended PAN ID
@@ -84,14 +83,14 @@ void loop() {
     size_t unicastCount = threadLeaderNode.getUnicastAddressCount();
     for (size_t i = 0; i < unicastCount; i++) {
       IPAddress addr = threadLeaderNode.getUnicastAddress(i);
-      Serial.printf("  [%lu]: %s\r\n", (unsigned long)i, addr.toString().c_str());
+      Serial.printf("  [%zu]: %s\r\n", i, addr.toString().c_str());
     }
 
     // Method 2: Multicast addresses using std::vector (bulk access)
     Serial.println("\r\n--- Multicast Addresses (Using std::vector API) ---");
     std::vector<IPAddress> allMulticast = threadLeaderNode.getAllMulticastAddresses();
     for (size_t i = 0; i < allMulticast.size(); i++) {
-      Serial.printf("  [%lu]: %s\r\n", (unsigned long)i, allMulticast[i].toString().c_str());
+      Serial.printf("  [%zu]: %s\r\n", i, allMulticast[i].toString().c_str());
     }
 
     // Check for role change and clear cache if needed (only when active)

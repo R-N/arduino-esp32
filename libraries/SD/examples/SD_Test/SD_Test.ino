@@ -38,7 +38,6 @@
  * https://github.com/espressif/arduino-esp32/tree/master/libraries/SD
  */
 
-#include <Arduino.h>
 #include "FS.h"
 #include "SD.h"
 #include "SPI.h"
@@ -186,7 +185,7 @@ void testFileIO(fs::FS &fs, const char *path) {
       len -= toRead;
     }
     end = millis() - start;
-    Serial.printf("%lu bytes read for %" PRIu32 " ms\n", (unsigned long)flen, end);
+    Serial.printf("%zu bytes read for %lu ms\n", flen, end);
     file.close();
   } else {
     Serial.println("Failed to open file for reading");
@@ -204,7 +203,7 @@ void testFileIO(fs::FS &fs, const char *path) {
     file.write(buf, 512);
   }
   end = millis() - start;
-  Serial.printf("%u bytes written for %" PRIu32 " ms\n", 2048 * 512, end);
+  Serial.printf("%u bytes written for %lu ms\n", 2048 * 512, end);
   file.close();
 }
 
@@ -239,9 +238,7 @@ void setup() {
   }
 
   uint64_t cardSize = SD.cardSize() / (1024 * 1024);
-  Serial.print("SD Card Size: ");
-  Serial.print(cardSize);
-  Serial.println("MB");
+  Serial.printf("SD Card Size: %lluMB\n", cardSize);
 
   listDir(SD, "/", 0);
   createDir(SD, "/mydir");
@@ -255,13 +252,8 @@ void setup() {
   renameFile(SD, "/hello.txt", "/foo.txt");
   readFile(SD, "/foo.txt");
   testFileIO(SD, "/test.txt");
-
-  Serial.print("Total space: ");
-  Serial.print(SD.totalBytes() / (1024 * 1024));
-  Serial.println("MB");
-  Serial.print("Used space: ");
-  Serial.print(SD.usedBytes() / (1024 * 1024));
-  Serial.println("MB");
+  Serial.printf("Total space: %lluMB\n", SD.totalBytes() / (1024 * 1024));
+  Serial.printf("Used space: %lluMB\n", SD.usedBytes() / (1024 * 1024));
 }
 
 void loop() {}

@@ -29,7 +29,6 @@
       dir is the argument that needs to be passed to the function PrintDirectory via HTTP Get request.
 
 */
-#include <Arduino.h>
 #include <WiFi.h>
 #include <NetworkClient.h>
 #include <WebServer.h>
@@ -255,7 +254,7 @@ void handleNotFound() {
   message += "\nArguments: ";
   message += server.args();
   message += "\n";
-  for (int i = 0; i < server.args(); i++) {
+  for (uint8_t i = 0; i < server.args(); i++) {
     message += " NAME:" + server.argName(i) + "\n VALUE:" + server.arg(i) + "\n";
   }
   server.send(404, "text/plain", message);

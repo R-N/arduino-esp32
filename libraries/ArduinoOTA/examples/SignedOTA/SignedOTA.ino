@@ -33,7 +33,6 @@
  * Created by lucasssvaz
  */
 
-#include <Arduino.h>
 #include <WiFi.h>
 #include <ESPmDNS.h>
 #include <NetworkUdp.h>

@@ -3,7 +3,6 @@
 
 */
 
-#include <Arduino.h>
 #include <ETH.h>
 #include <SPI.h>
 

@@ -4,7 +4,6 @@
   This example shows how to convert a HEX string to a binary buffer and vice versa.
 */
 
-#include <Arduino.h>
 #include <HEXBuilder.h>
 
 void setup() {

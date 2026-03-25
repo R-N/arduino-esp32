@@ -149,7 +149,7 @@ void MDNSResponder::enableWorkstation(esp_interface_t interface) {
     return;
   }
 
-  snprintf(winstance, sizeof(winstance), "%s [%02x:%02x:%02x:%02x:%02x:%02x]", _hostname.c_str(), mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+  sprintf(winstance, "%s [%02x:%02x:%02x:%02x:%02x:%02x]", _hostname.c_str(), mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
   if (mdns_service_add(NULL, "_workstation", "_tcp", 9, NULL, 0)) {
     log_e("Failed adding Workstation service");
@@ -168,14 +168,14 @@ bool MDNSResponder::addService(char *name, char *proto, uint16_t port) {
   char _name[strlen(name) + 2];
   char _proto[strlen(proto) + 2];
   if (name[0] == '_') {
-    snprintf(_name, sizeof(_name), "%s", name);
+    sprintf(_name, "%s", name);
   } else {
-    snprintf(_name, sizeof(_name), "_%s", name);
+    sprintf(_name, "_%s", name);
   }
   if (proto[0] == '_') {
-    snprintf(_proto, sizeof(_proto), "%s", proto);
+    sprintf(_proto, "%s", proto);
   } else {
-    snprintf(_proto, sizeof(_proto), "_%s", proto);
+    sprintf(_proto, "_%s", proto);
   }
 
   if (mdns_service_add(NULL, _name, _proto, port, NULL, 0)) {
@@ -189,14 +189,14 @@ bool MDNSResponder::addServiceTxt(char *name, char *proto, char *key, char *valu
   char _name[strlen(name) + 2];
   char _proto[strlen(proto) + 2];
   if (name[0] == '_') {
-    snprintf(_name, sizeof(_name), "%s", name);
+    sprintf(_name, "%s", name);
   } else {
-    snprintf(_name, sizeof(_name), "_%s", name);
+    sprintf(_name, "_%s", name);
   }
   if (proto[0] == '_') {
-    snprintf(_proto, sizeof(_proto), "%s", proto);
+    sprintf(_proto, "%s", proto);
   } else {
-    snprintf(_proto, sizeof(_proto), "_%s", proto);
+    sprintf(_proto, "_%s", proto);
   }
 
   if (mdns_service_txt_item_set(_name, _proto, key, value)) {
@@ -236,14 +236,14 @@ int MDNSResponder::queryService(char *service, char *proto) {
   char srv[strlen(service) + 2];
   char prt[strlen(proto) + 2];
   if (service[0] == '_') {
-    snprintf(srv, sizeof(srv), "%s", service);
+    sprintf(srv, "%s", service);
   } else {
-    snprintf(srv, sizeof(srv), "_%s", service);
+    sprintf(srv, "_%s", service);
   }
   if (proto[0] == '_') {
-    snprintf(prt, sizeof(prt), "%s", proto);
+    sprintf(prt, "%s", proto);
   } else {
-    snprintf(prt, sizeof(prt), "_%s", proto);
+    sprintf(prt, "_%s", proto);
   }
 
   esp_err_t err = mdns_query_ptr(srv, prt, 3000, 20, &results);

@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include <WiFi.h>
 
 #define STA_SSID "YOUR-SSID"

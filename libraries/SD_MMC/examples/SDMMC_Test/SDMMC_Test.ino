@@ -14,7 +14,7 @@
  * Connections for     ║   ║   ╔═══╩═║═║═══╗   ║  ║    ║
  * full-sized          ║   ║   ║   ╔═╝ ║   ║   ║  ║    ║
  * SD card             ║   ║   ║   ║   ║   ║   ║  ║    ║
- * ESP32-P4 Func EV | 40  39  GND  43 3V3 GND  44 42  41  | SLOT 0 (IO_MUX)
+ * ESP32-P4 Func EV | 40  39  GND  43 3V3 GND  44 43  42  | SLOT 0 (IO_MUX)
  * ESP32-S3 DevKit  | 21  47  GND  39 3V3 GND  40 41  42  |
  * ESP32-S3-USB-OTG | 38  37  GND  36 3V3 GND  35 34  33  |
  * ESP32            |  4   2  GND  14 3V3 GND  15 13  12  |
@@ -40,7 +40,6 @@
  *    https://github.com/espressif/arduino-esp32/tree/master/libraries/SD_MMC
  */
 
-#include <Arduino.h>
 #include "FS.h"
 #include "SD_MMC.h"
 
@@ -190,7 +189,7 @@ void testFileIO(fs::FS &fs, const char *path) {
       len -= toRead;
     }
     end = millis() - start;
-    Serial.printf("%lu bytes read for %" PRIu32 " ms\n", (unsigned long)flen, end);
+    Serial.printf("%zu bytes read for %lu ms\n", flen, end);
     file.close();
   } else {
     Serial.println("Failed to open file for reading");
@@ -208,7 +207,7 @@ void testFileIO(fs::FS &fs, const char *path) {
     file.write(buf, 512);
   }
   end = millis() - start;
-  Serial.printf("%u bytes written for %" PRIu32 " ms\n", 2048 * 512, end);
+  Serial.printf("%u bytes written for %lu ms\n", 2048 * 512, end);
   file.close();
 }
 
@@ -249,9 +248,7 @@ void setup() {
   }
 
   uint64_t cardSize = SD_MMC.cardSize() / (1024 * 1024);
-  Serial.print("SD_MMC Card Size: ");
-  Serial.print(cardSize);
-  Serial.println("MB");
+  Serial.printf("SD_MMC Card Size: %lluMB\n", cardSize);
 
   listDir(SD_MMC, "/", 0);
   createDir(SD_MMC, "/mydir");
@@ -265,13 +262,8 @@ void setup() {
   renameFile(SD_MMC, "/hello.txt", "/foo.txt");
   readFile(SD_MMC, "/foo.txt");
   testFileIO(SD_MMC, "/test.txt");
-
-  Serial.print("Total space: ");
-  Serial.print(SD_MMC.totalBytes() / (1024 * 1024));
-  Serial.println("MB");
-  Serial.print("Used space: ");
-  Serial.print(SD_MMC.usedBytes() / (1024 * 1024));
-  Serial.println("MB");
+  Serial.printf("Total space: %lluMB\n", SD_MMC.totalBytes() / (1024 * 1024));
+  Serial.printf("Used space: %lluMB\n", SD_MMC.usedBytes() / (1024 * 1024));
 }
 
 void loop() {

@@ -16,7 +16,6 @@
 #define LWIP_OPEN_SRC
 #endif
 #include <functional>
-#include <inttypes.h>
 #include "ArduinoOTA.h"
 #include "NetworkClient.h"
 #include "ESPmDNS.h"
@@ -177,7 +176,7 @@ void ArduinoOTAClass::begin() {
     char tmp[20];
     uint8_t mac[6];
     Network.macAddress(mac);
-    snprintf(tmp, sizeof(tmp), "esp32-%02x%02x%02x%02x%02x%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    sprintf(tmp, "esp32-%02x%02x%02x%02x%02x%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
     _hostname = tmp;
   }
 #ifdef CONFIG_MDNS_MAX_INTERFACES
@@ -188,7 +187,7 @@ void ArduinoOTAClass::begin() {
 #endif
   _initialized = true;
   _state = OTA_IDLE;
-  log_i("OTA server at: %s.local:%d", _hostname.c_str(), _port);
+  log_i("OTA server at: %s.local:%u", _hostname.c_str(), _port);
 }
 
 int ArduinoOTAClass::parseInt() {
@@ -380,8 +379,8 @@ void ArduinoOTAClass::_runUpdate() {
     }
     if (!waited) {
       if (written && tried++ < 3) {
-        log_i("Try[%" PRIu32 "]: %" PRIu32, tried, written);
-        if (!client.printf("%" PRIu32, written)) {
+        log_i("Try[%u]: %u", tried, written);
+        if (!client.printf("%lu", written)) {
           log_e("failed to respond");
           _state = OTA_IDLE;
           break;
@@ -397,7 +396,7 @@ void ArduinoOTAClass::_runUpdate() {
       return;
     }
     if (!available) {
-      log_e("No Data: %lu", (unsigned long)waited);
+      log_e("No Data: %u", waited);
       _state = OTA_IDLE;
       break;
     }
@@ -408,7 +407,7 @@ void ArduinoOTAClass::_runUpdate() {
     }
     size_t r = client.read(buf, available);
     if (r != available) {
-      log_w("didn't read enough! %lu != %lu", (unsigned long)r, (unsigned long)available);
+      log_w("didn't read enough! %u != %u", r, available);
       if ((int32_t)r < 0) {
         delay(1);
         continue;  //let's not try to write 4 gigabytes when client.read returns -1
@@ -418,9 +417,9 @@ void ArduinoOTAClass::_runUpdate() {
     written = _updater->write(buf, r);
     if (written > 0) {
       if (written != r) {
-        log_w("didn't write enough! %" PRIu32 " != %lu", (unsigned long)written, r);
+        log_w("didn't write enough! %u != %u", written, r);
       }
-      if (!client.printf("%" PRIu32, written)) {
+      if (!client.printf("%lu", written)) {
         log_w("failed to respond");
       }
       total += written;

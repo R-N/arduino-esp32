@@ -12,7 +12,6 @@
   - SHA2Builder(size_t hash_size): Generic class that can be used to create any SHA2 variant implemented
 */
 
-#include <Arduino.h>
 #include <SHA2Builder.h>
 
 // Expected hash values for validation

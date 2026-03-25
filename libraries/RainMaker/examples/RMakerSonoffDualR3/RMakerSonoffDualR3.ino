@@ -1,5 +1,4 @@
 //This example demonstrates the ESP RainMaker with a standard Switch device.
-#include <Arduino.h>
 #include "RMaker.h"
 #include "WiFi.h"
 #include "WiFiProv.h"
@@ -145,7 +144,7 @@ void setup() {
     chipId |= ((ESP.getEfuseMac() >> (40 - i)) & 0xff) << i;
   }
 
-  Serial.printf("\nChip ID:  %" PRIu32 " Service Name: %s\n", chipId, service_name);
+  Serial.printf("\nChip ID:  %lu Service Name: %s\n", chipId, service_name);
 
   Serial.printf("\nStarting ESP-RainMaker\n");
   RMaker.start();

@@ -25,7 +25,6 @@
 
 */
 
-#include <Arduino.h>
 #include "OThreadCLI.h"
 #include "OThreadCLI_Util.h"
 
@@ -63,7 +62,7 @@ void loop() {
     Serial.printf("Network Name: %s\r\n", networkName);
     // Channel
     uint8_t channel = otLinkGetChannel(aInstance);
-    Serial.printf("Channel: %u\r\n", channel);
+    Serial.printf("Channel: %d\r\n", channel);
     // PAN ID
     uint16_t panId = otLinkGetPanId(aInstance);
     Serial.printf("PanID: 0x%04x\r\n", panId);

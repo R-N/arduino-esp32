@@ -4,7 +4,6 @@
      Public domain - 2017
 */
 
-#include <Arduino.h>
 #include <WiFi.h>
 
 const char *ssid = "your_network_name";

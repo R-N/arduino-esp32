@@ -6,8 +6,6 @@
 */
 // Please read file README.md in the folder containing this example.
 
-#include <Arduino.h>
-
 #if CONFIG_FREERTOS_UNICORE
 #define TASK_RUNNING_CORE 0
 #else

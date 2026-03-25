@@ -1,7 +1,6 @@
 // This example demonstrates the use of functional callbacks with the Wire library
 // for I2C slave communication. It shows how to handle requests and data reception
 
-#include <Arduino.h>
 #include "Wire.h"
 
 #define I2C_DEV_ADDR 0x55
@@ -30,7 +29,7 @@ void setup() {
 
 #if CONFIG_IDF_TARGET_ESP32
   char message[64];
-  snprintf(message, 64, "%" PRIu32 " Packets.", i++);
+  snprintf(message, 64, "%lu Packets.", i++);
   Wire.slaveWrite((uint8_t *)message, strlen(message));
 #endif
 }

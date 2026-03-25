@@ -1,23 +1,4 @@
 /*
- * Copyright 2017-2026 Espressif Systems (Shanghai) PTE LTD
- * Copyright 2020-2025 Ryan Powell <ryan@nable-embedded.io> and
- * esp-nimble-cpp, NimBLE-Arduino contributors.
- * Copyright 2017 Neil Kolban
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-/*
  * BLEDevice.h
  *
  *  Created on: Mar 16, 2017
@@ -215,10 +196,6 @@ public:
   static String getPeerIRKString(BLEAddress peerAddress);
   static String getPeerIRKBase64(BLEAddress peerAddress);
   static String getPeerIRKReverse(BLEAddress peerAddress);
-  static bool getLocalIRK(uint8_t *irk);
-  static String getLocalIRKString();
-  static String getLocalIRKBase64();
-  static String getLocalIRKReverse();
   static BLEAdvertising *getAdvertising();
   static void startAdvertising();
   static void stopAdvertising();
@@ -234,7 +211,6 @@ public:
   static BLEStack getBLEStack();
   static String getBLEStackString();
   static bool isHostedBLE();
-  static String getDeviceName();
 
   /***************************************************************************
    *                       Bluedroid public declarations                    *
@@ -253,6 +229,7 @@ public:
   static void onReset(int reason);
   static void onSync(void);
   static void host_task(void *param);
+  static String getDeviceName();
   static bool setOwnAddrType(uint8_t type);
   static bool setOwnAddr(BLEAddress &addr);
   static bool setOwnAddr(uint8_t *addr);
@@ -282,7 +259,6 @@ private:
   static BLEAdvertising *m_bleAdvertising;
   static std::map<uint16_t, conn_status_t> m_connectedClientsMap;
   static portMUX_TYPE mux;
-  static String m_deviceName;
 
   /***************************************************************************
    *                        NimBLE private properties                        *
@@ -295,6 +271,7 @@ private:
   static BLEDeviceCallbacks defaultDeviceCallbacks;
   static BLEDeviceCallbacks *m_pDeviceCallbacks;
   static ble_gap_event_listener m_listener;
+  static String m_deviceName;
 #endif
 
   /***************************************************************************

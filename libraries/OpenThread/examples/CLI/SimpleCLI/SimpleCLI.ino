@@ -22,7 +22,6 @@
  *
  */
 
-#include <Arduino.h>
 #include "OThreadCLI.h"
 
 void setup() {

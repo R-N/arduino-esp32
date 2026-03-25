@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include <PPP.h>
 
 #define PPP_MODEM_APN "internet"

@@ -54,7 +54,7 @@ bool otGetRespCmd(const char *cmd, char *resp, uint32_t respTimeout) {
     return false;
   }
   if (resp != NULL) {
-    memcpy(resp, cliRespAllLines.c_str(), cliRespAllLines.length() + 1);
+    strcpy(resp, cliRespAllLines.c_str());
   }
   return true;
 }

@@ -10,8 +10,6 @@
  *
  */
 
-#include <Arduino.h>
-
 // soc/soc_caps.h has information about each SoC target
 // in this example, we use SOC_UART_HP_NUM that goes from 1 to 3,
 // depending on the number of available UARTs in the ESP32xx
@@ -98,7 +96,7 @@ void setup() {
 #endif
 
   delay(500);
-  Serial.printf("\nSend bytes to UART%u in order to\n", TEST_UART);
+  Serial.printf("\nSend bytes to UART%d in order to\n", TEST_UART);
   Serial.println("see a single processing function display information about");
   Serial.println("the received data.\n");
 }
@@ -114,7 +112,7 @@ void loop() {
 
 #if TEST_UART > 0
   Serial.println("\n\n==================================");
-  Serial.printf("Sending %lu bytes to UART%u...\n", (unsigned long)len, TEST_UART);
+  Serial.printf("Sending %zu bytes to UART%d...\n", len, TEST_UART);
   testingSerial.write(serial_data, len);
 #else
   // when UART0 is used for testing, it is necessary to send data using the Serial Monitor/Terminal

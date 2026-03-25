@@ -1,5 +1,3 @@
-#include <Arduino.h>
-
 #define BLINK_GPIO                2
 #define EOT_INITIAL_STATE_TIME_MS 1000
 

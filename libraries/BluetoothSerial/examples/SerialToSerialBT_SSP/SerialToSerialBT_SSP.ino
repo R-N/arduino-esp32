@@ -8,7 +8,6 @@
 // If the numbers match the user authenticates the pairing on both devices - on phone simply press "Pair" and in terminal for the sketch send 'Y' or 'y' to confirm.
 // Alternatively uncomment AUTO_PAIR to skip the terminal confirmation.
 
-#include <Arduino.h>
 #include "BluetoothSerial.h"
 
 //#define AUTO_PAIR // Uncomment to automatically authenticate ESP32 side
@@ -43,7 +42,7 @@ void BTConfirmRequestCallback(uint32_t numVal) {
   confirmRequestDone = false;
 #ifndef AUTO_PAIR
   Serial.printf(
-    "The PIN is: %06" PRIu32 ". If it matches number displayed on the other device write \'Y\' or \'y\':\n", numVal
+    "The PIN is: %06lu. If it matches number displayed on the other device write \'Y\' or \'y\':\n", numVal
   );  // Note the formatting "%06lu" - PIN can start with zero(s) which would be ignored with simple "%lu"
   while (!Serial.available()) {
     delay(1);  // Feed the watchdog
@@ -74,7 +73,7 @@ void BTKeyRequestCallback() {
     buffer[len] = '\0';  // Null-terminate the string.
     try {
       uint32_t passkey = std::stoi(buffer);
-      Serial.printf("Entered PIN: %06" PRIu32 "\n", passkey);
+      Serial.printf("Entered PIN: %lu\n", passkey);
       SerialBT.respondPasskey(passkey);
       return;
     } catch (...) {

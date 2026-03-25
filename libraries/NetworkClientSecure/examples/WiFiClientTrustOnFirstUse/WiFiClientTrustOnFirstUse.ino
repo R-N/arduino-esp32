@@ -40,7 +40,6 @@
    to some physical button or jumper on the PCB). And we only allow
    the TOFU to be configured when this pin is LOW.
 */
-#include <Arduino.h>
 #ifndef WIFI_NETWORK
 #define WIFI_NETWORK "Your Wifi SSID"
 #endif

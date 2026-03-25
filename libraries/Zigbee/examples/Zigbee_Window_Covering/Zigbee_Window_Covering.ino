@@ -31,7 +31,6 @@
  * Created by hennikul and Jan Procházka (https://github.com/P-R-O-C-H-Y/)
  */
 
-#include <Arduino.h>
 #ifndef ZIGBEE_MODE_ED
 #error "Zigbee end device mode is not selected in Tools->Zigbee mode"
 #endif
@@ -161,7 +160,7 @@ void goToLiftPercentage(uint8_t liftPercentage) {
   // Our simulated cover updates instantly!
   currentLift = (liftPercentage * MAX_LIFT) / 100;
   currentLiftPercentage = liftPercentage;
-  Serial.printf("New requested lift from Zigbee: %u (%u)\n", currentLift, liftPercentage);
+  Serial.printf("New requested lift from Zigbee: %d (%d)\n", currentLift, liftPercentage);
 
   // Update the current position
   zbCovering.setLiftPercentage(currentLiftPercentage);  //or setLiftPosition()
@@ -174,7 +173,7 @@ void goToTiltPercentage(uint8_t tiltPercentage) {
   // Our simulated cover updates instantly!
   currentTilt = (tiltPercentage * MAX_TILT) / 100;
   currentTiltPercentage = tiltPercentage;
-  Serial.printf("New requested tilt from Zigbee: %u (%u)\n", currentTilt, tiltPercentage);
+  Serial.printf("New requested tilt from Zigbee: %d (%d)\n", currentTilt, tiltPercentage);
 
   // Update the current position
   zbCovering.setTiltPercentage(currentTiltPercentage);  //or setTiltPosition()

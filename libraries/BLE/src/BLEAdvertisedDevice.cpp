@@ -1,23 +1,4 @@
 /*
- * Copyright 2017-2026 Espressif Systems (Shanghai) PTE LTD
- * Copyright 2020-2025 Ryan Powell <ryan@nable-embedded.io> and
- * esp-nimble-cpp, NimBLE-Arduino contributors.
- * Copyright 2017 Neil Kolban
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-/*
  * BLEAdvertisedDevice.cpp
  *
  * During the scanning procedure, we will be finding advertised BLE devices.  This class
@@ -47,7 +28,6 @@
 #include "BLEAdvertisedDevice.h"
 #include "BLEUtils.h"
 #include "esp32-hal-log.h"
-#include <inttypes.h>
 
 /***************************************************************************
  *                           Common functions                              *
@@ -122,7 +102,7 @@ BLEAdvertisedDevice::BLEAdvertisedDevice(const BLEAdvertisedDevice &other) {
     if (m_payload != nullptr) {
       memcpy(m_payload, other.m_payload, m_payloadLength);
     } else {
-      log_e("Failed to allocate %lu bytes for payload in copy constructor", (unsigned long)m_payloadLength);
+      log_e("Failed to allocate %zu bytes for payload in copy constructor", m_payloadLength);
       m_payloadLength = 0;
     }
   } else {
@@ -172,7 +152,7 @@ BLEAdvertisedDevice &BLEAdvertisedDevice::operator=(const BLEAdvertisedDevice &o
     if (m_payload != nullptr) {
       memcpy(m_payload, other.m_payload, m_payloadLength);
     } else {
-      log_e("Failed to allocate %lu bytes for payload in assignment operator", (unsigned long)m_payloadLength);
+      log_e("Failed to allocate %zu bytes for payload in assignment operator", m_payloadLength);
       m_payloadLength = 0;
     }
   } else {
@@ -443,7 +423,7 @@ void BLEAdvertisedDevice::parseAdvertisement(uint8_t *payload, size_t total_len)
       m_payload = new_payload;
       m_payloadLength += total_len;
     } else {
-      log_e("Failed to reallocate %lu bytes for payload (append)", (unsigned long)m_payloadLength + total_len);
+      log_e("Failed to reallocate %zu bytes for payload (append)", m_payloadLength + total_len);
     }
   } else {
     // First payload - make a copy since the original buffer may be reused
@@ -452,7 +432,7 @@ void BLEAdvertisedDevice::parseAdvertisement(uint8_t *payload, size_t total_len)
       memcpy(m_payload, payload, total_len);
       m_payloadLength = total_len;
     } else {
-      log_e("Failed to allocate %lu bytes for payload", (unsigned long)total_len);
+      log_e("Failed to allocate %zu bytes for payload", total_len);
       m_payloadLength = 0;
     }
   }
@@ -468,7 +448,7 @@ void BLEAdvertisedDevice::parseAdvertisement(uint8_t *payload, size_t total_len)
       length--;
 
       char *pHex = BLEUtils::buildHexData(nullptr, payload, length);
-      log_d("Type: 0x%.2x (%s), length: %u, data: %s", ad_type, BLEUtils::advDataTypeToString(ad_type), length, pHex);
+      log_d("Type: 0x%.2x (%s), length: %d, data: %s", ad_type, BLEUtils::advDataTypeToString(ad_type), length, pHex);
       free(pHex);
 
       switch (ad_type) {
@@ -577,7 +557,7 @@ void BLEAdvertisedDevice::parseAdvertisement(uint8_t *payload, size_t total_len)
 
         default:
         {
-          log_d("Unhandled type: adType: %u - 0x%02x", ad_type, ad_type);
+          log_d("Unhandled type: adType: %d - 0x%.2x", ad_type, ad_type);
           break;
         }  // default
       }  // switch
@@ -606,7 +586,7 @@ void BLEAdvertisedDevice::setPayload(uint8_t *payload, size_t total_len, bool ap
     // Append scan response data to existing advertisement data
     uint8_t *new_payload = (uint8_t *)realloc(m_payload, m_payloadLength + total_len);
     if (new_payload == nullptr) {
-      log_e("Failed to reallocate %lu bytes for payload buffer", (unsigned long)m_payloadLength + total_len);
+      log_e("Failed to reallocate %zu bytes for payload buffer", m_payloadLength + total_len);
       return;
     }
     memcpy(new_payload + m_payloadLength, payload, total_len);
@@ -619,7 +599,7 @@ void BLEAdvertisedDevice::setPayload(uint8_t *payload, size_t total_len, bool ap
     }
     m_payload = (uint8_t *)malloc(total_len);
     if (m_payload == nullptr) {
-      log_e("Failed to allocate %lu bytes for payload buffer", (unsigned long)total_len);
+      log_e("Failed to allocate %zu bytes for payload buffer", total_len);
       m_payloadLength = 0;
       return;
     }
@@ -651,7 +631,7 @@ void BLEAdvertisedDevice::setAdFlag(uint8_t adFlag) {
 void BLEAdvertisedDevice::setAppearance(uint16_t appearance) {
   m_appearance = appearance;
   m_haveAppearance = true;
-  log_d("- appearance: %u", m_appearance);
+  log_d("- appearance: %d", m_appearance);
 }  // setAppearance
 
 /**
@@ -746,7 +726,7 @@ String BLEAdvertisedDevice::toString() {
   String res = "Name: " + getName() + ", Address: " + getAddress().toString();
   if (haveAppearance()) {
     char val[6];
-    snprintf(val, sizeof(val), "%u", getAppearance());
+    snprintf(val, sizeof(val), "%d", getAppearance());
     res += ", appearance: ";
     res += val;
   }
@@ -768,8 +748,8 @@ String BLEAdvertisedDevice::toString() {
     res += val;
   }
   if (haveRSSI()) {
-    char val[6];
-    snprintf(val, sizeof(val), "%d", getRSSI());
+    char val[5];
+    snprintf(val, sizeof(val), "%i", getRSSI());
     res += ", rssi: ";
     res += val;
   }

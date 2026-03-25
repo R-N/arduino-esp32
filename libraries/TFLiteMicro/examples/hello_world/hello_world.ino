@@ -13,7 +13,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#include <Arduino.h>
 #include "tensorflow/lite/micro/micro_mutable_op_resolver.h"
 #include "tensorflow/lite/micro/micro_interpreter.h"
 #include "tensorflow/lite/micro/system_setup.h"
@@ -42,8 +41,8 @@ void setup() {
   model = tflite::GetModel(g_model);
   if (model->version() != TFLITE_SCHEMA_VERSION) {
     MicroPrintf(
-      "Model provided is schema version %" PRIu32 " not equal to supported "
-      "version %u.",
+      "Model provided is schema version %d not equal to supported "
+      "version %d.",
       model->version(), TFLITE_SCHEMA_VERSION
     );
     return;

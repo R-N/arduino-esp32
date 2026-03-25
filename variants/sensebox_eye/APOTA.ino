@@ -2,7 +2,6 @@
 // APOTA opens an access point which waits to receive a .bin file on /sketch.
 // After successful upload, the file is written to OTA0_Partition, and the microcontroller reboots to the newly uploaded sketch.
 
-#include <Arduino.h>
 #define DISPLAY_ENABLED
 
 #include <WiFi.h>
@@ -102,7 +101,7 @@ void setBootPartitionToOTA0() {
 }
 
 void setupDisplay() {
-  Wire.begin();
+  Wire.begin(PIN_QWIIC_SDA, PIN_QWIIC_SCL);
   displayEnabled = Wire.requestFrom(0x3D, 1);  // Check if the display is connected
   if (displayEnabled) {
     display.begin(SSD1306_SWITCHCAPVCC, 0x3D);
@@ -213,7 +212,7 @@ void setupOTA() {
         if (server.clientContentLength() > 0) {
           fsize = server.clientContentLength();
         }
-        Serial.printf("Receiving Update: %s, Size: %lu\n", upload.filename.c_str(), (unsigned long)fsize);
+        Serial.printf("Receiving Update: %s, Size: %d\n", upload.filename.c_str(), fsize);
 
         Serial.printf("Update: %s\n", upload.filename.c_str());
         if (!Update.begin(fsize)) {  //start with max available size

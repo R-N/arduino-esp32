@@ -11,7 +11,6 @@
   by Elochukwu Ifediora (fedy0)
 */
 
-#include <Arduino.h>
 #include <WiFi.h>
 #include <NetworkClient.h>
 #include <WiFiAP.h>

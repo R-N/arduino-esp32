@@ -6,7 +6,6 @@
   2017 - Evandro Copercini - Apache 2.0 License.
 */
 
-#include <Arduino.h>
 #include <NetworkClientSecure.h>
 #include <WiFi.h>
 

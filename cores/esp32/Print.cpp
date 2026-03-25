@@ -129,11 +129,12 @@ size_t Print::print(unsigned long n, int base) {
 }
 
 size_t Print::print(long long n, int base) {
+  int t = 0;
   if (base == 10 && n < 0) {
-    return print('-') + printNumber(static_cast<unsigned long long>(-(n + 1)) + 1ULL, base);
+    t = print('-');
+    n = -n;
   }
-
-  return printNumber(static_cast<unsigned long long>(n), base);
+  return printNumber(static_cast<unsigned long long>(n), base) + t;
 }
 
 size_t Print::print(unsigned long long n, int base) {

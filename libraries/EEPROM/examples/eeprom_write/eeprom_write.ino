@@ -6,7 +6,6 @@
    turned off and may be retrieved later by another sketch.
 */
 
-#include <Arduino.h>
 #include "EEPROM.h"
 
 // the current address in the EEPROM (i.e. which byte

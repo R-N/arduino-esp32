@@ -24,7 +24,6 @@
 
   http://www.arduino.cc/en/Tutorial/KeyboardReprogram
 */
-#include <Arduino.h>
 #ifndef ARDUINO_USB_MODE
 #error This ESP32 SoC has no Native USB interface
 #elif ARDUINO_USB_MODE == 1

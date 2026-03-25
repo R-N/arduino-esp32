@@ -15,7 +15,6 @@
 // automatically pair with ESP32 running this code
 // Note: Pairing is authenticated automatically by this device
 
-#include <Arduino.h>
 #include "BluetoothSerial.h"
 
 #define USE_NAME  // Comment this to use MAC address instead of a slaveName

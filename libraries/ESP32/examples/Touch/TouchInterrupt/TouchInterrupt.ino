@@ -3,8 +3,6 @@ This is an example how to use Touch Intrrerupts
 The bigger the threshold, the more sensible is the touch
 */
 
-#include <Arduino.h>
-
 int threshold = 0;  // if 0 is used, benchmark value is used. Its by default 1,5% change, can be changed by touchSetDefaultThreshold(float percentage)
 
 bool touch1detected = false;

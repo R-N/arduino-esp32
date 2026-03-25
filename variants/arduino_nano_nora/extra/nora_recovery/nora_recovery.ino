@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include "USB.h"
 
 #define USB_TIMEOUT_MS 15000

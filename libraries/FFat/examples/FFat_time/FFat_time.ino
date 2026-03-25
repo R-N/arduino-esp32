@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include "FS.h"
 #include "FFat.h"
 #include <time.h>

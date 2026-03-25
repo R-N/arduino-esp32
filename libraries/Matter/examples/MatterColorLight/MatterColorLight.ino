@@ -13,7 +13,6 @@
 // limitations under the License.
 
 // Matter Manager
-#include <Arduino.h>
 #include <Matter.h>
 #if !CONFIG_ENABLE_CHIPOBLE
 // if the device can be commissioned using BLE, WiFi is not used - save flash space
@@ -123,7 +122,7 @@ void setup() {
     return true;
   });
   ColorLight.onChangeColorHSV([](HsvColor_t hsvColor) {
-    Serial.printf("Light HSV Color changed to (%u,%u,%u)\r\n", hsvColor.h, hsvColor.s, hsvColor.v);
+    Serial.printf("Light HSV Color changed to (%d,%d,%d)\r\n", hsvColor.h, hsvColor.s, hsvColor.v);
     return true;
   });
 
@@ -133,7 +132,7 @@ void setup() {
   if (Matter.isDeviceCommissioned()) {
     Serial.println("Matter Node is commissioned and connected to the network. Ready for use.");
     Serial.printf(
-      "Initial state: %s | RGB Color: (%u,%u,%u) \r\n", ColorLight ? "ON" : "OFF", ColorLight.getColorRGB().r, ColorLight.getColorRGB().g,
+      "Initial state: %s | RGB Color: (%d,%d,%d) \r\n", ColorLight ? "ON" : "OFF", ColorLight.getColorRGB().r, ColorLight.getColorRGB().g,
       ColorLight.getColorRGB().b
     );
     // configure the Light based on initial on-off state and its color
@@ -159,7 +158,7 @@ void loop() {
       }
     }
     Serial.printf(
-      "Initial state: %s | RGB Color: (%u,%u,%u) \r\n", ColorLight ? "ON" : "OFF", ColorLight.getColorRGB().r, ColorLight.getColorRGB().g,
+      "Initial state: %s | RGB Color: (%d,%d,%d) \r\n", ColorLight ? "ON" : "OFF", ColorLight.getColorRGB().r, ColorLight.getColorRGB().g,
       ColorLight.getColorRGB().b
     );
     // configure the Light based on initial on-off state and its color

@@ -17,7 +17,6 @@
 //  2023.04.21 r1.0 Initial release
 //----------------------------------------------------------------------------------
 
-#include <Arduino.h>
 #include "esp_task_wdt.h"
 
 //Converts reason type to a C string.

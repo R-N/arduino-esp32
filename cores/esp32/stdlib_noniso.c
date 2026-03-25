@@ -140,11 +140,11 @@ char *dtostrf(double number, signed int width, unsigned int prec, char *s) {
   bool negative = false;
 
   if (isnan(number)) {
-    memcpy(s, "nan", sizeof("nan"));
+    strcpy(s, "nan");
     return s;
   }
   if (isinf(number)) {
-    memcpy(s, "inf", sizeof("inf"));
+    strcpy(s, "inf");
     return s;
   }
 

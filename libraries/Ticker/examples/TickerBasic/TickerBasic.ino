@@ -12,7 +12,6 @@
   The built-in LED will be blinking.
 */
 
-#include <Arduino.h>
 #include <Ticker.h>
 
 #ifndef LED_BUILTIN

@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include <MD5Builder.h>
 
 // Occasionally it is useful to compare a password that the user
