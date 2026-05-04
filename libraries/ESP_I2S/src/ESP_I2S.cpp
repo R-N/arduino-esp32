@@ -1,6 +1,7 @@
 // Disable the automatic pin remapping of the API calls in this file
 #define ARDUINO_CORE_BUILD
 
+#include "Arduino.h"
 #include "ESP_I2S.h"
 
 #if SOC_I2S_SUPPORTED
@@ -13,30 +14,17 @@
 
 #if SOC_I2S_HW_VERSION_2
 #undef I2S_STD_CLK_DEFAULT_CONFIG
-#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 5, 0)
 #define I2S_STD_CLK_DEFAULT_CONFIG(rate) \
-  { .sample_rate_hz = rate, .clk_src = I2S_CLK_SRC_DEFAULT, .ext_clk_freq_hz = 0, .mclk_multiple = I2S_MCLK_MULTIPLE_256, .bclk_div = 0 }
-#else
-#define I2S_STD_CLK_DEFAULT_CONFIG(rate) \
-  { .sample_rate_hz = rate, .clk_src = I2S_CLK_SRC_DEFAULT, .ext_clk_freq_hz = 0, .mclk_multiple = I2S_MCLK_MULTIPLE_256 }
-#endif
+  { .sample_rate_hz = rate, .clk_src = I2S_CLK_SRC_DEFAULT, .ext_clk_freq_hz = 0, .mclk_multiple = I2S_MCLK_MULTIPLE_256, }
 #endif
 
 #define I2S_READ_CHUNK_SIZE 1920
 
-#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 5, 0)
-#define I2S_DEFAULT_CFG()                                                                                                                                   \
-  {                                                                                                                                                         \
-    .id = I2S_NUM_AUTO, .role = I2S_ROLE_MASTER, .dma_desc_num = 6, .dma_frame_num = 240, .auto_clear = true, .auto_clear_before_cb = false, .allow_pd = 0, \
-    .intr_priority = 0                                                                                                                                      \
-  }
-#else
 #define I2S_DEFAULT_CFG()                                                                                                                    \
   {                                                                                                                                          \
     .id = I2S_NUM_AUTO, .role = I2S_ROLE_MASTER, .dma_desc_num = 6, .dma_frame_num = 240, .auto_clear = true, .auto_clear_before_cb = false, \
     .intr_priority = 0                                                                                                                       \
   }
-#endif
 
 #define I2S_STD_CHAN_CFG(_sample_rate, _data_bit_width, _slot_mode)                                                                   \
   {                                                                                                                                   \
@@ -986,7 +974,7 @@ bool I2SClass::allocTranformRX(size_t buf_len) {
   if (rx_transform_buf == NULL || rx_transform_buf_len != buf_len) {
     buf = (char *)malloc(buf_len);
     if (buf == NULL) {
-      log_e("malloc %u failed!", buf_len);
+      log_e("malloc %lu failed!", (unsigned long)buf_len);
       return false;
     }
     if (rx_transform_buf != NULL) {
@@ -1009,17 +997,17 @@ uint8_t *I2SClass::recordWAV(size_t rec_seconds, size_t *out_size) {
   const pcm_wav_header_t wav_header = PCM_WAV_HEADER_DEFAULT(rec_size, sample_width, sample_rate, num_channels);
   *out_size = 0;
 
-  log_d("Record WAV: rate:%lu, bits:%u, channels:%u, size:%lu", sample_rate, sample_width, num_channels, rec_size);
+  log_d("Record WAV: rate:%" PRIu32 ", bits:%u, channels:%u, size:%lu", sample_rate, sample_width, (unsigned long)num_channels, rec_size);
 
   uint8_t *wav_buf = (uint8_t *)malloc(rec_size + WAVE_HEADER_SIZE);
   if (wav_buf == NULL) {
-    log_e("Failed to allocate WAV buffer with size %u", rec_size + WAVE_HEADER_SIZE);
+    log_e("Failed to allocate WAV buffer with size %lu", (unsigned long)rec_size + WAVE_HEADER_SIZE);
     return NULL;
   }
   memcpy(wav_buf, &wav_header, WAVE_HEADER_SIZE);
   size_t wav_size = readBytes((char *)(wav_buf + WAVE_HEADER_SIZE), rec_size);
   if (wav_size < rec_size) {
-    log_e("Recorded %u bytes from %u", wav_size, rec_size);
+    log_e("Recorded %lu bytes from %lu", (unsigned long)wav_size, (unsigned long)rec_size);
   } else if (lastError()) {
     log_e("Read Failed! %d", lastError());
   } else {
@@ -1040,15 +1028,15 @@ void I2SClass::playWAV(uint8_t *data, size_t len) {
   size_t data_offset = 0;
   while (memcmp(data_chunk->subchunk_id, "data", 4) != 0) {
     log_d(
-      "Skip chunk: %c%c%c%c, len: %lu", data_chunk->subchunk_id[0], data_chunk->subchunk_id[1], data_chunk->subchunk_id[2], data_chunk->subchunk_id[3],
+      "Skip chunk: %c%c%c%c, len: %" PRIu32, data_chunk->subchunk_id[0], data_chunk->subchunk_id[1], data_chunk->subchunk_id[2], data_chunk->subchunk_id[3],
       data_chunk->subchunk_size + 8
     );
     data_offset += data_chunk->subchunk_size + 8;
     data_chunk = (wav_data_chunk_t *)(data + WAVE_HEADER_SIZE + data_offset - 8);
   }
   log_d(
-    "Play WAV: rate:%lu, bits:%d, channels:%d, size:%lu", header->fmt_chunk.sample_rate, header->fmt_chunk.bits_per_sample, header->fmt_chunk.num_of_channels,
-    data_chunk->subchunk_size
+    "Play WAV: rate:%" PRIu32 ", bits:%u, channels:%u, size:%" PRIu32, header->fmt_chunk.sample_rate, header->fmt_chunk.bits_per_sample,
+    header->fmt_chunk.num_of_channels, data_chunk->subchunk_size
   );
   configureTX(header->fmt_chunk.sample_rate, (i2s_data_bit_width_t)header->fmt_chunk.bits_per_sample, (i2s_slot_mode_t)header->fmt_chunk.num_of_channels);
   write(data + WAVE_HEADER_SIZE + data_offset, data_chunk->subchunk_size);

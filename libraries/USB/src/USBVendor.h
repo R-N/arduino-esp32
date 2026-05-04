@@ -25,13 +25,9 @@
 
 ESP_EVENT_DECLARE_BASE(ARDUINO_USB_VENDOR_EVENTS);
 
-// Match TinyUSB control_stage_t values (see common/tusb_types.h).
-// The raw stage value is forwarded to the user callback, so these
-// macros must agree numerically.
-#define REQUEST_STAGE_IDLE  0
-#define REQUEST_STAGE_SETUP 1
-#define REQUEST_STAGE_DATA  2
-#define REQUEST_STAGE_ACK   3
+#define REQUEST_STAGE_SETUP 0
+#define REQUEST_STAGE_DATA  1
+#define REQUEST_STAGE_ACK   2
 
 #define REQUEST_TYPE_STANDARD 0
 #define REQUEST_TYPE_CLASS    1

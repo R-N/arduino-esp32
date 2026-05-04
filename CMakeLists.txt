@@ -6,7 +6,7 @@
 #   idf.py build
 
 set(min_supported_idf_version "5.3.0")
-set(max_supported_idf_version "6.0.99")
+set(max_supported_idf_version "5.5.99")
 set(idf_version "${IDF_VERSION_MAJOR}.${IDF_VERSION_MINOR}.${IDF_VERSION_PATCH}")
 
 if ("${idf_version}" AND NOT "$ENV{ARDUINO_SKIP_IDF_VERSION_CHECK}")
@@ -69,6 +69,7 @@ set(CORE_SRCS
   cores/esp32/stdlib_noniso.c
   cores/esp32/Stream.cpp
   cores/esp32/StreamString.cpp
+  cores/esp32/StringUtils.cpp
   cores/esp32/Tone.cpp
   cores/esp32/HWCDC.cpp
   cores/esp32/USB.cpp
@@ -87,6 +88,7 @@ set(ARDUINO_ALL_LIBRARIES
   AsyncUDP
   BLE
   BluetoothSerial
+  Console
   DNSServer
   EEPROM
   ESP_I2S
@@ -134,6 +136,9 @@ set(ARDUINO_LIBRARY_BluetoothSerial_SRCS
   libraries/BluetoothSerial/src/BTAddress.cpp
   libraries/BluetoothSerial/src/BTAdvertisedDeviceSet.cpp
   libraries/BluetoothSerial/src/BTScanResultsSet.cpp)
+
+set(ARDUINO_LIBRARY_Console_SRCS libraries/Console/src/Console.cpp)
+set(ARDUINO_LIBRARY_Console_REQUIRES console)
 
 set(ARDUINO_LIBRARY_DNSServer_SRCS libraries/DNSServer/src/DNSServer.cpp)
 
@@ -252,6 +257,7 @@ set(ARDUINO_LIBRARY_USB_SRCS
   libraries/USB/src/keyboardLayout/KeyboardLayout_de_DE.cpp
   libraries/USB/src/keyboardLayout/KeyboardLayout_en_US.cpp
   libraries/USB/src/keyboardLayout/KeyboardLayout_es_ES.cpp
+  libraries/USB/src/keyboardLayout/KeyboardLayout_fr_CH.cpp
   libraries/USB/src/keyboardLayout/KeyboardLayout_fr_FR.cpp
   libraries/USB/src/keyboardLayout/KeyboardLayout_hu_HU.cpp
   libraries/USB/src/keyboardLayout/KeyboardLayout_it_IT.cpp
@@ -385,14 +391,7 @@ set(includedirs variants/${CONFIG_ARDUINO_VARIANT}/ cores/esp32/ ${ARDUINO_LIBRA
 set(srcs ${CORE_SRCS} ${ARDUINO_LIBRARIES_SRCS})
 set(priv_includes cores/esp32/libb64)
 set(requires spi_flash esp_partition mbedtls wpa_supplicant esp_adc esp_eth http_parser esp_ringbuf esp_driver_gptimer esp_driver_usb_serial_jtag driver esp_http_client esp_https_ota esp_timer)
-set(priv_requires fatfs nvs_flash app_update spiffs bootloader_support bt esp_hid esp_psram ${ARDUINO_LIBRARIES_REQUIRES})
-
-set(min_v6_idf_version "6.0.0")
-if (idf_version VERSION_LESS min_v6_idf_version)
-  list(APPEND priv_requires usb)
-else()
-  list(APPEND requires esp_hal_uart esp_hal_ledc esp_hal_ana_conv esp_hal_gpio esp_hal_i2c esp_hal_gpspi esp_hal_timg esp_driver_i2c esp_driver_ledc esp_driver_sdm esp_driver_tsens esp_driver_rmt esp_driver_i2s esp_driver_uart esp_driver_dac)
-endif()
+set(priv_requires fatfs nvs_flash app_update spiffs bootloader_support bt esp_hid usb esp_psram ${ARDUINO_LIBRARIES_REQUIRES})
 
 if(NOT CONFIG_ARDUINO_SELECTIVE_COMPILATION OR CONFIG_ARDUINO_SELECTIVE_OpenThread)
   #if(CONFIG_SOC_IEEE802154_SUPPORTED) # Does not work!

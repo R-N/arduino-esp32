@@ -56,13 +56,6 @@ extern "C" {
 #include <vector>
 #include "sdkconfig.h"
 
-#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(6, 0, 0)
-#define esp_interface_t wifi_interface_t
-#define ESP_IF_WIFI_AP  WIFI_IF_AP
-#define ESP_IF_WIFI_STA WIFI_IF_STA
-#define ESP_IF_MAX      3
-#endif
-
 ESP_EVENT_DEFINE_BASE(ARDUINO_EVENTS);
 
 static esp_netif_t *esp_netifs[ESP_IF_MAX] = {NULL, NULL, NULL};
@@ -85,7 +78,7 @@ static void _arduino_event_cb(void *arg, esp_event_base_t event_base, int32_t ev
   if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_SCAN_DONE) {
 #if ARDUHAL_LOG_LEVEL >= ARDUHAL_LOG_LEVEL_VERBOSE
     wifi_event_sta_scan_done_t *event = (wifi_event_sta_scan_done_t *)event_data;
-    log_v("SCAN Done: ID: %u, Status: %u, Results: %u", event->scan_id, event->status, event->number);
+    log_v("SCAN Done: ID: %u, Status: %" PRIu32 ", Results: %u", event->scan_id, event->status, event->number);
 #endif
     arduino_event.event_id = ARDUINO_EVENT_WIFI_SCAN_DONE;
     memcpy(&arduino_event.event_info.wifi_scan_done, event_data, sizeof(wifi_event_sta_scan_done_t));
@@ -465,7 +458,7 @@ int WiFiGenericClass::setChannel(uint8_t primary, wifi_second_chan_t secondary) 
   uint8_t max_chan = min_chan + country.nchan - 1;
 
   if (primary < min_chan || primary > max_chan) {
-    log_e("Invalid primary channel: %d. Valid range is %d-%d for country %s", primary, min_chan, max_chan, country.cc);
+    log_e("Invalid primary channel: %u. Valid range is %u-%u for country %s", primary, min_chan, max_chan, country.cc);
     return ESP_ERR_INVALID_ARG;
   }
 
@@ -931,14 +924,7 @@ wifi_power_t WiFiGenericClass::getTxPower() {
  */
 bool WiFiGenericClass::initiateFTM(uint8_t frm_count, uint16_t burst_period, uint8_t channel, const uint8_t *mac) {
   wifi_ftm_initiator_cfg_t ftmi_cfg = {
-    .resp_mac = {0, 0, 0, 0, 0, 0},
-    .channel = channel,
-    .frm_count = frm_count,
-    .burst_period = burst_period
-#if ESP_IDF_VERSION < ESP_IDF_VERSION_VAL(6, 0, 0)
-    ,
-    .use_get_report_api = true
-#endif
+    .resp_mac = {0, 0, 0, 0, 0, 0}, .channel = channel, .frm_count = frm_count, .burst_period = burst_period, .use_get_report_api = true
   };
   if (mac != NULL) {
     memcpy(ftmi_cfg.resp_mac, mac, 6);

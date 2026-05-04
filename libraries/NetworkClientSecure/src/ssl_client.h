@@ -8,13 +8,9 @@
 #include "mbedtls/net_sockets.h"
 #include "mbedtls/debug.h"
 #include "mbedtls/ssl.h"
-#include "mbedtls/error.h"
-#include "mbedtls/version.h"
-
-#if MBEDTLS_VERSION_MAJOR < 4
 #include "mbedtls/entropy.h"
 #include "mbedtls/ctr_drbg.h"
-#endif
+#include "mbedtls/error.h"
 
 typedef esp_err_t (*crt_bundle_attach_cb)(void *conf);
 
@@ -23,10 +19,8 @@ typedef struct sslclient_context {
   mbedtls_ssl_context ssl_ctx;
   mbedtls_ssl_config ssl_conf;
 
-#if MBEDTLS_VERSION_MAJOR < 4
   mbedtls_ctr_drbg_context drbg_ctx;
   mbedtls_entropy_context entropy_ctx;
-#endif
 
   mbedtls_x509_crt ca_cert;
   mbedtls_x509_crt client_cert;
